@@ -100,6 +100,7 @@
 
         <!-- Video Container -->
         <div class="video-container mb-6" style="height: 400px;">
+    <div id="videoArea" class="w-full h-full rounded-xl"></div>
             <!-- Video Area -->
             <div class="video-placeholder w-full h-full" id="videoArea">
                 <div class="text-center">
@@ -113,16 +114,14 @@
 
             <!-- Question Overlay -->
             <div class="question-overlay" id="questionOverlay">
-                <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
-                    <div class="text-4xl mb-4" id="questionIcon">🤔</div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-4" id="questionText">คำถามจะแสดงที่นี่</h3>
-                    <div class="space-y-3" id="answerOptions">
-                        <!-- คำตอบจะถูกสร้างด้วย JavaScript -->
-                    </div>
-                    <div class="mt-6 text-sm text-gray-500" id="questionCounter">คำถามที่ 1 จาก 5</div>
-                </div>
-            </div>
+        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+            <div class="text-4xl mb-4" id="questionIcon">🤔</div>
+            <h3 class="text-xl font-bold text-gray-800 mb-4" id="questionText">คำถามจะแสดงที่นี่</h3>
+            <div class="space-y-3" id="answerOptions"></div>
+            <div class="mt-6 text-sm text-gray-500" id="questionCounter">คำถามที่ 1 จาก 5</div>
         </div>
+    </div>
+</div>
 
         <!-- Control Panel -->
         <div class="bg-white rounded-2xl p-6 shadow-lg">

@@ -152,3 +152,74 @@ function resetVideo() {
 
 // เริ่มต้นคะแนน 0
 updateScore();
+
+let player;
+let currentQuestion = 0;
+let score = 0;
+let totalQuestions = questions.length;
+
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('videoArea', {
+        height: '100%',
+        width: '100%',
+        videoId: 'sR4D-pnU9T8', // YouTube Video ID จากลิงก์
+        events: {
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
+// ตรวจจับเวลาและสถานะของวิดีโอ
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING) {
+        checkTime();
+    }
+}
+
+// ตรวจสอบเวลาเพื่อแสดงคำถาม
+function checkTime() {
+    const currentTime = player.getCurrentTime();
+
+    if (currentTime >= 20 && currentQuestion === 0) { player.pauseVideo(); showQuestion(); }
+    if (currentTime >= 35 && currentQuestion === 1) { player.pauseVideo(); showQuestion(); }
+    if (currentTime >= 50 && currentQuestion === 2) { player.pauseVideo(); showQuestion(); }
+    if (currentTime >= 70 && currentQuestion === 3) { player.pauseVideo(); showQuestion(); }
+    if (currentTime >= 85 && currentQuestion === 4) { player.pauseVideo(); showQuestion(); }
+
+    if (player.getPlayerState() === YT.PlayerState.PLAYING) {
+        setTimeout(checkTime, 500);
+    }
+}
+
+// เริ่มเล่น
+function startVideo() {
+    player.playVideo();
+}
+
+// หยุดชั่วคราว
+function pauseVideo() {
+    player.pauseVideo();
+}
+
+// เล่นต่อ
+function resumeVideo() {
+    hideQuestion();
+    player.playVideo();
+}
+
+// รีเซ็ตวิดีโอ
+function resetVideo() {
+    player.seekTo(0);
+    player.pauseVideo();
+    currentQuestion = 0;
+    score = 0;
+    updateScore();
+    hideQuestion();
+}
+
+// โหลด YouTube IFrame API
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
