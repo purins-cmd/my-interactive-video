@@ -223,3 +223,186 @@ tag.src = "https://www.youtube.com/iframe_api";
 var firstScriptTag = document.getElementsByTagName('script')[0];
 firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+// โหลด YouTube IFrame API
+let tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+
+let player;
+let videoProgress = 0;
+let videoInterval;
+let isVideoPlaying = false;
+let currentQuestion = 0;
+let score = 0;
+let totalQuestions = questions.length;
+
+// สร้าง player เมื่อ API พร้อม
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('videoArea', {
+        height: '400',
+        width: '100%',
+        videoId: 'sR4D-pnU9T8', // ใส่ YouTube ID ของคุณ
+        playerVars: {
+            autoplay: 0,
+            controls: 0,
+            modestbranding: 1,
+            rel: 0,
+        },
+        events: {
+            onReady: onPlayerReady,
+            onStateChange: onPlayerStateChange
+        }
+    });
+}
+
+function onPlayerReady(event) {
+    // เตรียมพร้อมเล่น แต่ไม่ autoplay
+    console.log("Player ready");
+}
+
+function startVideo() {
+    if(player) {
+        player.playVideo();
+        isVideoPlaying = true;
+        startVideoProgress();
+    }
+}
+
+function pauseVideo() {
+    if(player) player.pauseVideo();
+    isVideoPlaying = false;
+}
+
+function resumeVideo() {
+    if(player) player.playVideo();
+    isVideoPlaying = true;
+    hideQuestion();
+}
+
+function resetVideo() {
+    if(player) player.stopVideo();
+    currentQuestion = 0;
+    score = 0;
+    videoProgress = 0;
+    isVideoPlaying = false;
+    updateProgress();
+    updateScore();
+    hideQuestion();
+}
+
+// วัด progress และแสดงคำถาม
+function startVideoProgress() {
+    clearInterval(videoInterval);
+    videoInterval = setInterval(() => {
+        if(isVideoPlaying) {
+            videoProgress += 1;
+            updateProgress();
+            
+            // ตัวอย่างเวลาแสดงคำถาม
+            if(videoProgress === 20 && currentQuestion === 0 ||
+               videoProgress === 35 && currentQuestion === 1 ||
+               videoProgress === 50 && currentQuestion === 2 ||
+               videoProgress === 70 && currentQuestion === 3 ||
+               videoProgress === 85 && currentQuestion === 4) {
+                pauseVideo();
+                showQuestion();
+            }
+            if(videoProgress >= 100) {
+                completeVideo();
+            }
+        }
+    }, 150);
+}
+
+// YouTube IFrame API
+let tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+
+let player;
+let currentQuestion = 0;
+let score = 0;
+let totalQuestions = questions.length;
+let videoDuration = 180; // 3 นาที = 180 วินาที
+let videoInterval;
+
+// สร้าง player
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('videoArea', {
+        height: '400',
+        width: '100%',
+        videoId: 'sR4D-pnU9T8', // ใส่ YouTube ID
+        playerVars: {
+            autoplay: 0,
+            controls: 0,
+            modestbranding: 1,
+            rel: 0
+        },
+        events: {
+            onReady: onPlayerReady
+        }
+    });
+}
+
+function onPlayerReady() {
+    console.log("Player ready");
+}
+
+function startVideo() {
+    if(player) {
+        player.playVideo();
+        startVideoProgress();
+    }
+}
+
+function pauseVideo() {
+    if(player) player.pauseVideo();
+}
+
+function resumeVideo() {
+    if(player) {
+        player.playVideo();
+        hideQuestion();
+    }
+}
+
+function resetVideo() {
+    if(player) player.stopVideo();
+    currentQuestion = 0;
+    score = 0;
+    updateScore();
+    updateProgress(0);
+    hideQuestion();
+}
+
+// Update progress bar ตามเวลาปัจจุบันของวิดีโอ
+function startVideoProgress() {
+    clearInterval(videoInterval);
+    videoInterval = setInterval(() => {
+        if(player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            let currentTime = player.getCurrentTime(); // วินาที
+            let progressPercent = (currentTime / videoDuration) * 100;
+            updateProgress(progressPercent);
+
+            // แสดงคำถามตาม % ของคลิป
+            if(progressPercent >= 20 && currentQuestion === 0) { pauseVideo(); showQuestion(); }
+            else if(progressPercent >= 35 && currentQuestion === 1) { pauseVideo(); showQuestion(); }
+            else if(progressPercent >= 50 && currentQuestion === 2) { pauseVideo(); showQuestion(); }
+            else if(progressPercent >= 70 && currentQuestion === 3) { pauseVideo(); showQuestion(); }
+            else if(progressPercent >= 85 && currentQuestion === 4) { pauseVideo(); showQuestion(); }
+
+            // เสร็จคลิป
+            if(progressPercent >= 100) {
+                clearInterval(videoInterval);
+                completeVideo();
+            }
+        }
+    }, 500); // ทุกครึ่งวินาที
+}
+
+function updateProgress(percent) {
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressText').textContent = Math.round(percent) + '%';
+}
+
+
