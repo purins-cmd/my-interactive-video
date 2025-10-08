@@ -1,408 +1,98 @@
 // ข้อมูลคำถาม
 const questions = [
-    {
-        question: "การเรียนรู้แบบ Interactive คืออะไร?",
-        options: ["การเรียนแบบมีปฏิสัมพันธ์","การเรียนแบบท่องจำ","การเรียนแบบฟัง","การเรียนแบบอ่าน"],
-        correct: 0,
-        icon: "🤔"
-    },
-    {
-        question: "ข้อดีของวิดีโอ Interactive คืออะไร?",
-        options: ["ดูง่าย","เพิ่มการมีส่วนร่วมและความจดจำ","สั้น","ฟรี"],
-        correct: 1,
-        icon: "💡"
-    },
-    {
-        question: "เทคโนโลยีใดที่ใช้สร้างวิดีโอ Interactive?",
-        options: ["HTML เท่านั้น","CSS เท่านั้น","HTML, CSS และ JavaScript","JavaScript เท่านั้น"],
-        correct: 2,
-        icon: "💻"
-    },
-    {
-        question: "องค์ประกอบสำคัญของวิดีโอ Interactive คืออะไร?",
-        options: ["เสียงเพลงเท่านั้น","ภาพสวยเท่านั้น","คำถาม ปุ่มกด และการตอบสนอง","ความยาวของวิดีโอ"],
-        correct: 2,
-        icon: "🎯"
-    },
-    {
-        question: "การใช้วิดีโอ Interactive เหมาะกับการเรียนรู้แบบใด?",
-        options: ["การเรียนรู้แบบเดิม","การเรียนรู้แบบ Active Learning","การเรียนรู้แบบท่องจำ","การเรียนรู้แบบฟังเท่านั้น"],
-        correct: 1,
-        icon: "🚀"
-    }
+    {question:"การเรียนรู้แบบ Interactive คืออะไร?", options:["การเรียนแบบมีปฏิสัมพันธ์","การเรียนแบบท่องจำ","การเรียนแบบฟัง","การเรียนแบบอ่าน"], correct:0, icon:"🤔"},
+    {question:"ข้อดีของวิดีโอ Interactive คืออะไร?", options:["ดูง่าย","เพิ่มการมีส่วนร่วมและความจดจำ","สั้น","ฟรี"], correct:1, icon:"💡"},
+    {question:"เทคโนโลยีใดที่ใช้สร้างวิดีโอ Interactive?", options:["HTML เท่านั้น","CSS เท่านั้น","HTML, CSS และ JavaScript","JavaScript เท่านั้น"], correct:2, icon:"💻"},
+    {question:"องค์ประกอบสำคัญของวิดีโอ Interactive คืออะไร?", options:["เสียงเพลงเท่านั้น","ภาพสวยเท่านั้น","คำถาม ปุ่มกด และการตอบสนอง","ความยาวของวิดีโอ"], correct:2, icon:"🎯"},
+    {question:"การใช้วิดีโอ Interactive เหมาะกับการเรียนรู้แบบใด?", options:["การเรียนรู้แบบเดิม","การเรียนรู้แบบ Active Learning","การเรียนรู้แบบท่องจำ","การเรียนรู้แบบฟังเท่านั้น"], correct:1, icon:"🚀"}
 ];
 
 let currentQuestion = 0;
 let score = 0;
 let totalQuestions = questions.length;
-let videoProgress = 0;
-let isVideoPlaying = false;
+let videoDuration = 180; // วินาที 3 นาที
 let videoInterval;
 
-function startVideo() {
-    document.getElementById('videoArea').innerHTML = `
-        <iframe id="actualVideo" class="w-full h-full" 
-            src="https://www.youtube.com/embed/VIDEO_ID?autoplay=1" 
-            frameborder="0" allowfullscreen>
-        </iframe>
-    `;
-    isVideoPlaying = true;
-    startVideoProgress();
+// YouTube Player
+let tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
+
+let player;
+function onYouTubeIframeAPIReady(){
+    player = new YT.Player('videoArea', {
+        height: '400',
+        width: '100%',
+        videoId: 'sR4D-pnU9T8',
+        playerVars: { autoplay: 0, controls:0, modestbranding:1, rel:0 },
+        events:{ onReady:()=>{} }
+    });
 }
 
-function startVideoProgress() {
-    videoInterval = setInterval(() => {
-        if (isVideoPlaying && videoProgress < 100) {
-            videoProgress += 1;
-            updateProgress();
-            // แสดงคำถามตามช่วงเวลา
-            if (videoProgress === 20 && currentQuestion === 0) { pauseVideo(); showQuestion(); }
-            if (videoProgress === 35 && currentQuestion === 1) { pauseVideo(); showQuestion(); }
-            if (videoProgress === 50 && currentQuestion === 2) { pauseVideo(); showQuestion(); }
-            if (videoProgress === 70 && currentQuestion === 3) { pauseVideo(); showQuestion(); }
-            if (videoProgress === 85 && currentQuestion === 4) { pauseVideo(); showQuestion(); }
-            if (videoProgress === 100) { completeVideo(); }
-        }
-    }, 150);
+// เริ่มเล่น
+function startVideo(){
+    if(player){ player.playVideo(); startVideoProgress(); }
 }
 
-function pauseVideo() { isVideoPlaying = false; }
-function resumeVideo() { if(videoProgress<100){isVideoPlaying=true; hideQuestion();} }
+function pauseVideo(){ if(player) player.pauseVideo(); }
+function resumeVideo(){ if(player){ player.playVideo(); hideQuestion(); } }
 
-function showQuestion() {
-    if (currentQuestion < totalQuestions) {
-        const q = questions[currentQuestion];
-        document.getElementById('questionIcon').textContent = q.icon;
-        document.getElementById('questionText').textContent = q.question;
-        document.getElementById('questionCounter').textContent = `คำถามที่ ${currentQuestion+1} จาก ${totalQuestions}`;
-        const optionsContainer = document.getElementById('answerOptions');
-        optionsContainer.innerHTML = '';
+function resetVideo(){
+    if(player) player.stopVideo();
+    currentQuestion = 0; score=0;
+    updateScore(); updateProgress(0);
+    hideQuestion();
+}
+
+// คำถาม
+function showQuestion(){
+    if(currentQuestion<totalQuestions){
+        const q=questions[currentQuestion];
+        const overlay=document.getElementById('questionOverlay');
+        document.getElementById('questionIcon').textContent=q.icon;
+        document.getElementById('questionText').textContent=q.question;
+        document.getElementById('questionCounter').textContent=`คำถามที่ ${currentQuestion+1} จาก ${totalQuestions}`;
+        const optionsContainer=document.getElementById('answerOptions');
+        optionsContainer.innerHTML='';
         q.options.forEach((option,index)=>{
-            const btn = document.createElement('button');
-            btn.className = 'answer-btn w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-medium text-left';
-            btn.textContent = option;
-            btn.onclick = ()=>selectAnswer(index);
+            let btn=document.createElement('button');
+            btn.textContent=option;
+            btn.onclick=()=>selectAnswer(index);
             optionsContainer.appendChild(btn);
         });
-        document.getElementById('questionOverlay').classList.add('active');
+        overlay.classList.add('active');
     }
 }
+function hideQuestion(){ document.getElementById('questionOverlay').classList.remove('active'); }
 
-function hideQuestion() { document.getElementById('questionOverlay').classList.remove('active'); }
-
-function selectAnswer(selectedIndex) {
-    const q = questions[currentQuestion];
-    const buttons = document.querySelectorAll('.answer-btn');
-    buttons.forEach((btn,index)=>{
-        if(index===q.correct){ btn.className='answer-btn w-full correct text-white py-3 px-4 rounded-lg font-medium text-left'; }
-        else if(index===selectedIndex && index!==q.correct){ btn.className='answer-btn w-full incorrect text-white py-3 px-4 rounded-lg font-medium text-left'; }
-        else { btn.className='answer-btn w-full bg-gray-300 text-gray-600 py-3 px-4 rounded-lg font-medium text-left'; }
+function selectAnswer(selectedIndex){
+    const q=questions[currentQuestion];
+    const buttons=document.querySelectorAll('#answerOptions button');
+    buttons.forEach((btn,i)=>{
         btn.disabled=true;
+        if(i===q.correct) btn.classList.add('correct');
+        else if(i===selectedIndex) btn.classList.add('incorrect');
     });
-    if(selectedIndex===q.correct){score++;}
+    if(selectedIndex===q.correct) score++;
     updateScore();
     setTimeout(()=>{
         currentQuestion++;
         hideQuestion();
-        if(currentQuestion<totalQuestions){ resumeVideo(); }
-        else{ completeVideo(); }
+        if(currentQuestion<totalQuestions) resumeVideo();
+        else completeVideo();
     },2000);
 }
 
-function updateProgress() {
-    document.getElementById('progressBar').style.width = videoProgress+'%';
-    document.getElementById('progressText').textContent=Math.round(videoProgress)+'%';
-}
-
-function updateScore() { document.getElementById('scoreDisplay').textContent = `${score}/${currentQuestion+1}`; }
-
-function completeVideo() {
-    isVideoPlaying=false;
+// Progress
+function startVideoProgress(){
     clearInterval(videoInterval);
-    videoProgress=100;
-    updateProgress();
-    document.getElementById('videoArea').innerHTML=`
-        <div class="video-placeholder w-full h-full">
-            <div class="text-center">
-                <div class="text-6xl mb-4">🎉</div>
-                <p class="text-2xl mb-4">เรียนจบแล้ว!</p>
-                <div class="text-lg mb-4">คะแนนของคุณ: ${score}/${totalQuestions}</div>
-                <div class="text-lg">${score===totalQuestions?'ยอดเยี่ยม! 🏆':score>=totalQuestions/2?'ดีมาก! 👍':'ลองใหม่นะ! 💪'}</div>
-            </div>
-        </div>
-    `;
-}
-
-function resetVideo() {
-    clearInterval(videoInterval);
-    currentQuestion=0; score=0; videoProgress=0; isVideoPlaying=false;
-    updateProgress(); updateScore(); hideQuestion();
-    document.getElementById('videoArea').innerHTML=`
-        <div class="video-placeholder w-full h-full">
-            <div class="text-center">
-                <div class="text-6xl mb-4">🎥</div>
-                <p class="mb-4">วิดีโอจะแสดงที่นี่</p>
-                <button class="bg-white text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors" onclick="startVideo()">
-                    ▶️ เริ่มเรียน
-                </button>
-            </div>
-        </div>
-    `;
-}
-
-// เริ่มต้นคะแนน 0
-updateScore();
-
-let player;
-let currentQuestion = 0;
-let score = 0;
-let totalQuestions = questions.length;
-
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('videoArea', {
-        height: '100%',
-        width: '100%',
-        videoId: 'sR4D-pnU9T8', // YouTube Video ID จากลิงก์
-        events: {
-            'onStateChange': onPlayerStateChange
-        }
-    });
-}
-
-// ตรวจจับเวลาและสถานะของวิดีโอ
-function onPlayerStateChange(event) {
-    if (event.data === YT.PlayerState.PLAYING) {
-        checkTime();
-    }
-}
-
-// ตรวจสอบเวลาเพื่อแสดงคำถาม
-function checkTime() {
-    const currentTime = player.getCurrentTime();
-
-    if (currentTime >= 20 && currentQuestion === 0) { player.pauseVideo(); showQuestion(); }
-    if (currentTime >= 35 && currentQuestion === 1) { player.pauseVideo(); showQuestion(); }
-    if (currentTime >= 50 && currentQuestion === 2) { player.pauseVideo(); showQuestion(); }
-    if (currentTime >= 70 && currentQuestion === 3) { player.pauseVideo(); showQuestion(); }
-    if (currentTime >= 85 && currentQuestion === 4) { player.pauseVideo(); showQuestion(); }
-
-    if (player.getPlayerState() === YT.PlayerState.PLAYING) {
-        setTimeout(checkTime, 500);
-    }
-}
-
-// เริ่มเล่น
-function startVideo() {
-    player.playVideo();
-}
-
-// หยุดชั่วคราว
-function pauseVideo() {
-    player.pauseVideo();
-}
-
-// เล่นต่อ
-function resumeVideo() {
-    hideQuestion();
-    player.playVideo();
-}
-
-// รีเซ็ตวิดีโอ
-function resetVideo() {
-    player.seekTo(0);
-    player.pauseVideo();
-    currentQuestion = 0;
-    score = 0;
-    updateScore();
-    hideQuestion();
-}
-
-// โหลด YouTube IFrame API
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-// โหลด YouTube IFrame API
-let tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-document.head.appendChild(tag);
-
-let player;
-let videoProgress = 0;
-let videoInterval;
-let isVideoPlaying = false;
-let currentQuestion = 0;
-let score = 0;
-let totalQuestions = questions.length;
-
-// สร้าง player เมื่อ API พร้อม
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('videoArea', {
-        height: '400',
-        width: '100%',
-        videoId: 'sR4D-pnU9T8', // ใส่ YouTube ID ของคุณ
-        playerVars: {
-            autoplay: 0,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-        },
-        events: {
-            onReady: onPlayerReady,
-            onStateChange: onPlayerStateChange
-        }
-    });
-}
-
-function onPlayerReady(event) {
-    // เตรียมพร้อมเล่น แต่ไม่ autoplay
-    console.log("Player ready");
-}
-
-function startVideo() {
-    if(player) {
-        player.playVideo();
-        isVideoPlaying = true;
-        startVideoProgress();
-    }
-}
-
-function pauseVideo() {
-    if(player) player.pauseVideo();
-    isVideoPlaying = false;
-}
-
-function resumeVideo() {
-    if(player) player.playVideo();
-    isVideoPlaying = true;
-    hideQuestion();
-}
-
-function resetVideo() {
-    if(player) player.stopVideo();
-    currentQuestion = 0;
-    score = 0;
-    videoProgress = 0;
-    isVideoPlaying = false;
-    updateProgress();
-    updateScore();
-    hideQuestion();
-}
-
-// วัด progress และแสดงคำถาม
-function startVideoProgress() {
-    clearInterval(videoInterval);
-    videoInterval = setInterval(() => {
-        if(isVideoPlaying) {
-            videoProgress += 1;
-            updateProgress();
-            
-            // ตัวอย่างเวลาแสดงคำถาม
-            if(videoProgress === 20 && currentQuestion === 0 ||
-               videoProgress === 35 && currentQuestion === 1 ||
-               videoProgress === 50 && currentQuestion === 2 ||
-               videoProgress === 70 && currentQuestion === 3 ||
-               videoProgress === 85 && currentQuestion === 4) {
-                pauseVideo();
-                showQuestion();
-            }
-            if(videoProgress >= 100) {
-                completeVideo();
-            }
-        }
-    }, 150);
-}
-
-// YouTube IFrame API
-let tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-document.head.appendChild(tag);
-
-let player;
-let currentQuestion = 0;
-let score = 0;
-let totalQuestions = questions.length;
-let videoDuration = 180; // 3 นาที = 180 วินาที
-let videoInterval;
-
-// สร้าง player
-function onYouTubeIframeAPIReady() {
-    player = new YT.Player('videoArea', {
-        height: '400',
-        width: '100%',
-        videoId: 'sR4D-pnU9T8', // ใส่ YouTube ID
-        playerVars: {
-            autoplay: 0,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0
-        },
-        events: {
-            onReady: onPlayerReady
-        }
-    });
-}
-
-function onPlayerReady() {
-    console.log("Player ready");
-}
-
-function startVideo() {
-    if(player) {
-        player.playVideo();
-        startVideoProgress();
-    }
-}
-
-function pauseVideo() {
-    if(player) player.pauseVideo();
-}
-
-function resumeVideo() {
-    if(player) {
-        player.playVideo();
-        hideQuestion();
-    }
-}
-
-function resetVideo() {
-    if(player) player.stopVideo();
-    currentQuestion = 0;
-    score = 0;
-    updateScore();
-    updateProgress(0);
-    hideQuestion();
-}
-
-// Update progress bar ตามเวลาปัจจุบันของวิดีโอ
-function startVideoProgress() {
-    clearInterval(videoInterval);
-    videoInterval = setInterval(() => {
-        if(player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            let currentTime = player.getCurrentTime(); // วินาที
-            let progressPercent = (currentTime / videoDuration) * 100;
-            updateProgress(progressPercent);
-
-            // แสดงคำถามตาม % ของคลิป
-            if(progressPercent >= 20 && currentQuestion === 0) { pauseVideo(); showQuestion(); }
-            else if(progressPercent >= 35 && currentQuestion === 1) { pauseVideo(); showQuestion(); }
-            else if(progressPercent >= 50 && currentQuestion === 2) { pauseVideo(); showQuestion(); }
-            else if(progressPercent >= 70 && currentQuestion === 3) { pauseVideo(); showQuestion(); }
-            else if(progressPercent >= 85 && currentQuestion === 4) { pauseVideo(); showQuestion(); }
-
-            // เสร็จคลิป
-            if(progressPercent >= 100) {
-                clearInterval(videoInterval);
-                completeVideo();
-            }
-        }
-    }, 500); // ทุกครึ่งวินาที
-}
-
-function updateProgress(percent) {
-    document.getElementById('progressBar').style.width = percent + '%';
-    document.getElementById('progressText').textContent = Math.round(percent) + '%';
-}
-
-
+    videoInterval=setInterval(()=>{
+        if(player && player.getPlayerState()===YT.PlayerState.PLAYING){
+            let currentTime=player.getCurrentTime();
+            let percent=(currentTime/videoDuration)*100;
+            updateProgress(percent);
+            if(percent>=20 && currentQuestion===0){ pauseVideo(); showQuestion(); }
+            else if(percent>=35 && currentQuestion===1){ pauseVideo(); showQuestion(); }
+            else if(percent>=50 && currentQuestion===2){ pauseVideo(); showQuestion(); }
+            else if(percent>=70 && currentQuestion===3){ pauseVideo(); showQuestion(); }
+            else if(percent>=85 && currentQuestion===4){ pauseVideo(); show

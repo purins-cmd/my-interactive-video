@@ -1,414 +1,59 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interactive Video Learning</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gray-50 min-h-full p-6">
-
-<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Video Learning</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            box-sizing: border-box;
-        }
-        
-        .video-container {
-            position: relative;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-        
-        .question-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .question-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-        
-        .progress-bar {
-            background: linear-gradient(90deg, #4f46e5, #7c3aed);
-            transition: width 0.3s ease;
-        }
-        
-        .answer-btn {
-            transition: all 0.2s ease;
-        }
-        
-        .answer-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .correct {
-            background: linear-gradient(135deg, #10b981, #059669);
-        }
-        
-        .incorrect {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
-        }
-        
-        .video-placeholder {
-            background: linear-gradient(45deg, #1e293b, #334155);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2rem;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 min-h-full p-6">
-    <div class="max-w-4xl mx-auto">
+<body>
+    <div class="container">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-4">🎬 Interactive Video Learning</h1>
-            <p class="text-gray-600 text-lg">เรียนรู้ผ่านวิดีโอแบบโต้ตอบ พร้อมคำถามทดสอบความเข้าใจ</p>
+        <div class="header">
+            <h1>🎬 Interactive Video Learning</h1>
+            <p>เรียนรู้ผ่านวิดีโอแบบโต้ตอบ พร้อมคำถามทดสอบความเข้าใจ</p>
         </div>
 
         <!-- Progress Bar -->
-        <div class="mb-6">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-sm font-medium text-gray-700">ความคืบหน้า</span>
-                <span class="text-sm font-medium text-gray-700" id="progressText">0%</span>
-            </div>
-            <div class="w-full bg-gray-200 rounded-full h-3">
-                <div class="progress-bar h-3 rounded-full" id="progressBar" style="width: 0%"></div>
+        <div class="progress-wrapper">
+            <span>ความคืบหน้า</span>
+            <span id="progressText">0%</span>
+            <div class="progress-bar-bg">
+                <div class="progress-bar" id="progressBar"></div>
             </div>
         </div>
 
         <!-- Video Container -->
-        <div class="video-container mb-6" style="height: 400px;">
-    <div id="videoArea" class="w-full h-full rounded-xl"></div>
-            <!-- Video Area -->
-            <div class="video-placeholder w-full h-full" id="videoArea">
-                <div class="text-center">
-                    <div class="text-6xl mb-4">🎥</div>
-                    <p class="mb-4">วิดีโอจะแสดงที่นี่</p>
-                    <button class="bg-white text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors" onclick="startVideo()">
-                        ▶️ เริ่มเรียน
-                    </button>
-                </div>
-            </div>
+        <div class="video-container">
+            <div id="videoArea"></div>
 
             <!-- Question Overlay -->
             <div class="question-overlay" id="questionOverlay">
-        <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
-            <div class="text-4xl mb-4" id="questionIcon">🤔</div>
-            <h3 class="text-xl font-bold text-gray-800 mb-4" id="questionText">คำถามจะแสดงที่นี่</h3>
-            <div class="space-y-3" id="answerOptions"></div>
-            <div class="mt-6 text-sm text-gray-500" id="questionCounter">คำถามที่ 1 จาก 5</div>
+                <div class="question-box">
+                    <div class="question-icon" id="questionIcon">🤔</div>
+                    <h3 id="questionText">คำถามจะแสดงที่นี่</h3>
+                    <div id="answerOptions"></div>
+                    <div class="question-counter" id="questionCounter">คำถามที่ 1 จาก 5</div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
         <!-- Control Panel -->
-        <div class="bg-white rounded-2xl p-6 shadow-lg">
-            <div class="flex flex-wrap gap-4 justify-center">
-                <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-full font-semibold transition-colors" onclick="pauseVideo()">
-                    ⏸️ หยุดชั่วคราว
-                </button>
-                <button class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full font-semibold transition-colors" onclick="resumeVideo()">
-                    ▶️ เล่นต่อ
-                </button>
-                <button class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full font-semibold transition-colors" onclick="showQuestion()">
-                    ❓ แสดงคำถาม
-                </button>
-                <button class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-full font-semibold transition-colors" onclick="resetVideo()">
-                    🔄 เริ่มใหม่
-                </button>
-            </div>
+        <div class="control-panel">
+            <button onclick="pauseVideo()">⏸️ หยุดชั่วคราว</button>
+            <button onclick="resumeVideo()">▶️ เล่นต่อ</button>
+            <button onclick="showQuestion()">❓ แสดงคำถาม</button>
+            <button onclick="resetVideo()">🔄 เริ่มใหม่</button>
         </div>
 
         <!-- Score Display -->
-        <div class="mt-6 text-center">
-            <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-2xl p-6 inline-block">
-                <div class="text-2xl font-bold mb-2">🏆 คะแนนของคุณ</div>
-                <div class="text-4xl font-bold" id="scoreDisplay">0/0</div>
-            </div>
-        </div>
-
-        <!-- Instructions -->
-        <div class="mt-8 bg-blue-50 rounded-2xl p-6">
-            <h3 class="text-xl font-bold text-blue-800 mb-4">📋 วิธีใช้งาน</h3>
-            <div class="grid md:grid-cols-2 gap-4 text-blue-700">
-                <div>
-                    <h4 class="font-semibold mb-2">🎯 การเรียนรู้</h4>
-                    <ul class="space-y-1 text-sm">
-                        <li>• กดปุ่ม "เริ่มเรียน" เพื่อเริ่มวิดีโอ</li>
-                        <li>• คำถามจะขึ้นอัตโนมัติตามช่วงเวลา</li>
-                        <li>• ตอบคำถามแล้ววิดีโอจะเล่นต่อ</li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-2">🎮 การควบคุม</h4>
-                    <ul class="space-y-1 text-sm">
-                        <li>• หยุดชั่วคราว/เล่นต่อ วิดีโอ</li>
-                        <li>• แสดงคำถามด้วยตนเอง</li>
-                        <li>• เริ่มใหม่เมื่อต้องการ</li>
-                    </ul>
-                </div>
-            </div>
+        <div class="score-display">
+            <div>🏆 คะแนนของคุณ</div>
+            <div id="scoreDisplay">0/0</div>
         </div>
     </div>
 
-    <script>
-        // ข้อมูลคำถาม
-        const questions = [
-            {
-                question: "การเรียนรู้แบบ Interactive คืออะไร?",
-                options: [
-                    "การเรียนแบบมีปฏิสัมพันธ์",
-                    "การเรียนแบบท่องจำ",
-                    "การเรียนแบบฟัง",
-                    "การเรียนแบบอ่าน"
-                ],
-                correct: 0,
-                icon: "🤔"
-            },
-            {
-                question: "ข้อดีของวิดีโอ Interactive คืออะไร?",
-                options: [
-                    "ดูง่าย",
-                    "เพิ่มการมีส่วนร่วมและความจดจำ",
-                    "สั้น",
-                    "ฟรี"
-                ],
-                correct: 1,
-                icon: "💡"
-            },
-            {
-                question: "เทคโนโลยีใดที่ใช้สร้างวิดีโอ Interactive?",
-                options: [
-                    "HTML เท่านั้น",
-                    "CSS เท่านั้น",
-                    "HTML, CSS และ JavaScript",
-                    "JavaScript เท่านั้น"
-                ],
-                correct: 2,
-                icon: "💻"
-            },
-            {
-                question: "องค์ประกอบสำคัญของวิดีโอ Interactive คืออะไร?",
-                options: [
-                    "เสียงเพลงเท่านั้น",
-                    "ภาพสวยเท่านั้น",
-                    "คำถาม ปุ่มกด และการตอบสนอง",
-                    "ความยาวของวิดีโอ"
-                ],
-                correct: 2,
-                icon: "🎯"
-            },
-            {
-                question: "การใช้วิดีโอ Interactive เหมาะกับการเรียนรู้แบบใด?",
-                options: [
-                    "การเรียนรู้แบบเดิม",
-                    "การเรียนรู้แบบ Active Learning",
-                    "การเรียนรู้แบบท่องจำ",
-                    "การเรียนรู้แบบฟังเท่านั้น"
-                ],
-                correct: 1,
-                icon: "🚀"
-            }
-        ];
-
-        let currentQuestion = 0;
-        let score = 0;
-        let totalQuestions = questions.length;
-        let videoProgress = 0;
-        let isVideoPlaying = false;
-        let videoInterval;
-
-        function startVideo() {
-            // ใส่วิดีโอจาก Google Drive ของคุณ
-            document.getElementById('videoArea').innerHTML = `
-                <iframe id="actualVideo" class="w-full h-full" 
-                    src="https://drive.google.com/file/d/1w4vj7jAoHlcH7SUHa3x8YaZvkUuT8Pgt/preview" 
-                    frameborder="0" allowfullscreen>
-                </iframe>
-            `;
-            
-            isVideoPlaying = true;
-            startVideoProgress();
-        }
-
-        function startVideoProgress() {
-            videoInterval = setInterval(() => {
-                if (isVideoPlaying && videoProgress < 100) {
-                    videoProgress += 1;
-                    updateProgress();
-                    
-                    // แสดงคำถามตามช่วงเวลาที่กำหนด (อัตโนมัติ)
-                    if (videoProgress === 20 && currentQuestion === 0) {
-                        pauseVideo();
-                        showQuestion();
-                    } else if (videoProgress === 35 && currentQuestion === 1) {
-                        pauseVideo();
-                        showQuestion();
-                    } else if (videoProgress === 50 && currentQuestion === 2) {
-                        pauseVideo();
-                        showQuestion();
-                    } else if (videoProgress === 70 && currentQuestion === 3) {
-                        pauseVideo();
-                        showQuestion();
-                    } else if (videoProgress === 85 && currentQuestion === 4) {
-                        pauseVideo();
-                        showQuestion();
-                    } else if (videoProgress === 100) {
-                        completeVideo();
-                    }
-                }
-            }, 150);
-        }
-
-        function pauseVideo() {
-            isVideoPlaying = false;
-            // หมายเหตุ: Google Drive iframe ไม่สามารถควบคุมการเล่นได้โดยตรง
-        }
-
-        function resumeVideo() {
-            if (videoProgress < 100) {
-                isVideoPlaying = true;
-                hideQuestion();
-            }
-        }
-
-        function showQuestion() {
-            if (currentQuestion < totalQuestions) {
-                const q = questions[currentQuestion];
-                
-                document.getElementById('questionIcon').textContent = q.icon;
-                document.getElementById('questionText').textContent = q.question;
-                document.getElementById('questionCounter').textContent = `คำถามที่ ${currentQuestion + 1} จาก ${totalQuestions}`;
-                
-                const optionsContainer = document.getElementById('answerOptions');
-                optionsContainer.innerHTML = '';
-                
-                q.options.forEach((option, index) => {
-                    const button = document.createElement('button');
-                    button.className = 'answer-btn w-full bg-gray-100 hover:bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-medium text-left';
-                    button.textContent = option;
-                    button.onclick = () => selectAnswer(index);
-                    optionsContainer.appendChild(button);
-                });
-                
-                document.getElementById('questionOverlay').classList.add('active');
-            }
-        }
-
-        function hideQuestion() {
-            document.getElementById('questionOverlay').classList.remove('active');
-        }
-
-        function selectAnswer(selectedIndex) {
-            const q = questions[currentQuestion];
-            const buttons = document.querySelectorAll('.answer-btn');
-            
-            buttons.forEach((button, index) => {
-                if (index === q.correct) {
-                    button.className = 'answer-btn w-full correct text-white py-3 px-4 rounded-lg font-medium text-left';
-                } else if (index === selectedIndex && index !== q.correct) {
-                    button.className = 'answer-btn w-full incorrect text-white py-3 px-4 rounded-lg font-medium text-left';
-                } else {
-                    button.className = 'answer-btn w-full bg-gray-300 text-gray-600 py-3 px-4 rounded-lg font-medium text-left';
-                }
-                button.disabled = true;
-            });
-            
-            if (selectedIndex === q.correct) {
-                score++;
-            }
-            
-            updateScore();
-            
-            setTimeout(() => {
-                currentQuestion++;
-                hideQuestion();
-                if (currentQuestion < totalQuestions) {
-                    resumeVideo();
-                } else {
-                    completeVideo();
-                }
-            }, 2000);
-        }
-
-        function updateProgress() {
-            document.getElementById('progressBar').style.width = videoProgress + '%';
-            document.getElementById('progressText').textContent = Math.round(videoProgress) + '%';
-        }
-
-        function updateScore() {
-            document.getElementById('scoreDisplay').textContent = `${score}/${currentQuestion + 1}`;
-        }
-
-        function completeVideo() {
-            isVideoPlaying = false;
-            clearInterval(videoInterval);
-            videoProgress = 100;
-            updateProgress();
-            
-            document.getElementById('videoArea').innerHTML = `
-                <div class="video-placeholder w-full h-full">
-                    <div class="text-center">
-                        <div class="text-6xl mb-4">🎉</div>
-                        <p class="text-2xl mb-4">เรียนจบแล้ว!</p>
-                        <div class="text-lg mb-4">คะแนนของคุณ: ${score}/${totalQuestions}</div>
-                        <div class="text-lg">${score === totalQuestions ? 'ยอดเยี่ยม! 🏆' : score >= totalQuestions/2 ? 'ดีมาก! 👍' : 'ลองใหม่นะ! 💪'}</div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function resetVideo() {
-            clearInterval(videoInterval);
-            currentQuestion = 0;
-            score = 0;
-            videoProgress = 0;
-            isVideoPlaying = false;
-            
-            updateProgress();
-            updateScore();
-            hideQuestion();
-            
-            document.getElementById('videoArea').innerHTML = `
-                <div class="video-placeholder w-full h-full">
-                    <div class="text-center">
-                        <div class="text-6xl mb-4">🎥</div>
-                        <p class="mb-4">วิดีโอจะแสดงที่นี่</p>
-                        <button class="bg-white text-gray-800 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-colors" onclick="startVideo()">
-                            ▶️ เริ่มเรียน
-                        </button>
-                    </div>
-                </div>
-            `;
-        }
-
-        // เริ่มต้นด้วยคะแนน 0
-        updateScore();
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98b39130d077d03a',t:'MTc1OTkwNDc5MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-
+    <!-- JS -->
     <script src="script.js"></script>
 </body>
 </html>
