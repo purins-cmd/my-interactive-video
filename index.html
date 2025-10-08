@@ -5,55 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Video Learning</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
+<body class="bg-gray-50 min-h-full p-6">
+    <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="header">
-            <h1>🎬 Interactive Video Learning</h1>
-            <p>เรียนรู้ผ่านวิดีโอแบบโต้ตอบ พร้อมคำถามทดสอบความเข้าใจ</p>
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-4">🎬 Interactive Video Learning</h1>
+            <p class="text-gray-600 text-lg">เรียนรู้ผ่านวิดีโอแบบโต้ตอบ พร้อมคำถามทดสอบความเข้าใจ</p>
         </div>
 
         <!-- Progress Bar -->
-        <div class="progress-wrapper">
-            <span>ความคืบหน้า</span>
-            <span id="progressText">0%</span>
-            <div class="progress-bar-bg">
-                <div class="progress-bar" id="progressBar"></div>
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-medium text-gray-700">ความคืบหน้า</span>
+                <span class="text-sm font-medium text-gray-700" id="progressText">0%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-3">
+                <div class="progress-bar h-3 rounded-full" id="progressBar" style="width: 0%"></div>
             </div>
         </div>
 
         <!-- Video Container -->
-        <div class="video-container">
+        <div class="video-container mb-6" style="height: 400px;">
             <div id="videoArea"></div>
 
             <!-- Question Overlay -->
             <div class="question-overlay" id="questionOverlay">
-                <div class="question-box">
-                    <div class="question-icon" id="questionIcon">🤔</div>
-                    <h3 id="questionText">คำถามจะแสดงที่นี่</h3>
-                    <div id="answerOptions"></div>
-                    <div class="question-counter" id="questionCounter">คำถามที่ 1 จาก 5</div>
+                <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+                    <div class="text-4xl mb-4" id="questionIcon">🤔</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4" id="questionText">คำถามจะแสดงที่นี่</h3>
+                    <div class="space-y-3" id="answerOptions"></div>
+                    <div class="mt-6 text-sm text-gray-500" id="questionCounter">คำถามที่ 1 จาก 5</div>
                 </div>
             </div>
         </div>
 
         <!-- Control Panel -->
-        <div class="control-panel">
-            <button onclick="pauseVideo()">⏸️ หยุดชั่วคราว</button>
-            <button onclick="resumeVideo()">▶️ เล่นต่อ</button>
-            <button onclick="showQuestion()">❓ แสดงคำถาม</button>
-            <button onclick="resetVideo()">🔄 เริ่มใหม่</button>
+        <div class="bg-white rounded-2xl p-6 shadow-lg">
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button class="btn-blue" onclick="pauseVideo()">⏸️ หยุดชั่วคราว</button>
+                <button class="btn-green" onclick="resumeVideo()">▶️ เล่นต่อ</button>
+            </div>
         </div>
 
         <!-- Score Display -->
-        <div class="score-display">
-            <div>🏆 คะแนนของคุณ</div>
-            <div id="scoreDisplay">0/0</div>
+        <div class="mt-6 text-center">
+            <div class="bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-2xl p-6 inline-block">
+                <div class="text-2xl font-bold mb-2">🏆 คะแนนของคุณ</div>
+                <div class="text-4xl font-bold" id="scoreDisplay">0/0</div>
+            </div>
         </div>
     </div>
 
-    <!-- JS -->
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script src="script.js"></script>
 </body>
 </html>
